@@ -2,18 +2,13 @@ import { ApplicationConfig } from '@angular/core'
 import { provideRouter } from '@angular/router'
 import { provideStore } from '@ngrx/store'
 import { providePrimeNG } from 'primeng/config'
+import { MessageService } from 'primeng/api'
 import Aura from '@primeng/themes/aura'
 import { provideApollo } from 'apollo-angular'
 import { ApolloLink, InMemoryCache, Observable } from '@apollo/client/core'
 import { routes } from './app.routes'
 import { weldReducer } from './store/weld.reducer'
-
-const mockGraphqlLink = new ApolloLink((operation) => new Observable((observer) => {
-  setTimeout(() => {
-    observer.next({ data: operation.operationName === 'Welds' ? mockData : {} })
-    observer.complete()
-  }, 180)
-}))
+import { seedBatches, seedOfflineOps, seedPlans } from './store/seed'
 
 const mockData = {
   welds: [
@@ -23,11 +18,17 @@ const mockData = {
     { id:'W-109', drawing:'SG-12-平台梁', component:'PL-08 / 节点板', joint:'角焊缝', method:'SMAW', welder:'孙鹏', qualification:'GB/T 9448 · 2026-10-01', qualificationValid:false, inspectionRatio:10, requiredRatio:20, status:'待检测', x:78, y:60, repairs:0, defects:[] },
     { id:'W-112', drawing:'SG-12-平台梁', component:'PL-08 / 腹板', joint:'组合焊缝', method:'GMAW', welder:'王凯', qualification:'GB/T 9448 · 2027-06', qualificationValid:true, inspectionRatio:50, requiredRatio:50, status:'已关闭', x:36, y:68, repairs:0, defects:[] },
   ],
-  plans: [
-    { id:'IP-2026-0930-A', date:'2026-09-30', method:'UT + MT', weldIds:['W-105','W-106','W-108'], inspector:'陈锋', state:'待执行' },
-    { id:'IP-2026-0929-B', date:'2026-09-29', method:'UT', weldIds:['W-104'], inspector:'赵岚', state:'执行中' },
-  ],
+  plans: seedPlans,
+  batches: seedBatches,
+  offlineOps: seedOfflineOps,
 }
+
+const mockGraphqlLink = new ApolloLink((operation) => new Observable((observer) => {
+  setTimeout(() => {
+    observer.next({ data: operation.operationName === 'Welds' ? mockData : {} })
+    observer.complete()
+  }, 180)
+}))
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,5 +36,6 @@ export const appConfig: ApplicationConfig = {
     provideStore({ welds: weldReducer }),
     providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: false } } }),
     provideApollo(() => ({ cache: new InMemoryCache(), link: mockGraphqlLink })),
+    MessageService,
   ],
 }

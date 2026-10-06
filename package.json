@@ -5,7 +5,8 @@
   "scripts": {
     "start": "ng serve --host 0.0.0.0 --port 62056",
     "dev": "ng serve --host 0.0.0.0 --port 62056",
-    "build": "ng build"
+    "build": "ng build",
+    "test:logic": "mkdir -p node_modules/.cache && esbuild scripts/batch.logic.test.ts --bundle --platform=node --format=cjs --outfile=node_modules/.cache/batch-test.cjs --log-level=warning && node node_modules/.cache/batch-test.cjs"
   },
   "dependencies": {
     "@angular/animations": "20.2.4",
